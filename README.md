@@ -20,6 +20,14 @@ Current keys used by the project:
 - `TIMEZONE`: `"Europe/Lisbon"`
 - `RAW_DATA_PATH`: `"data/stock_data.json"`
 
+PostgreSQL keys used by the loading step:
+
+- `USER`: `"tiagopereira"` (PostgreSQL username)
+- `PASSWORD`: `""` (PostgreSQL password)
+- `HOST`: `"localhost"`
+- `PORT`: `"5432"`
+- `DATABASE`: `"stock_data"`
+
 Example `config/.env`:
 
 ```dotenv
@@ -27,4 +35,39 @@ API_KEY=""
 SYMBOL="TSLA"
 TIMEZONE="Europe/Lisbon"
 RAW_DATA_PATH="data/stock_data.json"
+
+# postgres
+USER="tiagopereira"
+PASSWORD="123456"
+HOST="localhost"
+PORT="5432"
+DATABASE="stock_data"
 ```
+
+### PostgreSQL database creation
+
+1) Connect to the default `postgres` database:
+
+```bash
+psql -d postgres
+```
+Note: update the username/password to match your own environment.
+
+```sql
+CREATE USER tiagopereira WITH PASSWORD '123456';
+ALTER USER tiagopereira WITH SUPERUSER;
+CREATE DATABASE stock_data OWNER tiagopereira;
+```
+
+2) Exit `psql`:
+
+```text
+\q
+```
+
+3) Connect to the newly created database:
+
+```bash
+psql -d stock_data
+```
+

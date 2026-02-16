@@ -1,6 +1,4 @@
-import os, requests, json, sys
-from dotenv import load_dotenv
-from pathlib import Path
+import requests, json
 
 import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
