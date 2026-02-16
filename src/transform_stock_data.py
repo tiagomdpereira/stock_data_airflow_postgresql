@@ -1,7 +1,5 @@
 import pandas as pd
-import json, os, sys
-from pathlib import Path
-from dotenv import load_dotenv
+import json
 
 import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -105,5 +103,7 @@ def transform_data(vars: dict) -> pd.DataFrame:
     return df
 
 if __name__ == "__main__":
-    df = transform_data()
+    from utils import get_variables
+    vars = get_variables()
+    df = transform_data(vars)
     print(df)
