@@ -153,6 +153,49 @@ The stock data is stored in the `db` database, under the `dev` schema, in the `s
 | User | `db_user` |
 | Password | `db_password` |
 
+### Accessing the database
+
+Open an interactive `psql` session inside the running container:
+
+```bash
+docker exec -it postgres_container psql -U db_user -d db
+```
+
+When prompted, enter the password: `db_password`
+
+### Exploring the database
+
+Once connected, use the following `psql` meta-commands to navigate:
+
+```sql
+-- List all databases
+\l
+
+-- List all schemas in the current database
+\dn
+
+-- List all tables (relations) inside the dev schema
+\dt dev.*
+```
+
+### Querying the stock data
+
+Once connected, run any of the following queries:
+
+```sql
+-- View all recorded entries
+SELECT * FROM dev.stock_data;
+
+-- View the most recent entries first
+SELECT * FROM dev.stock_data ORDER BY timestamp DESC;
+
+-- Count total rows collected
+SELECT COUNT(*) FROM dev.stock_data;
+
+```
+
+To exit the `psql` session, type `\q` and press Enter.
+
 ---
 
 ## Airflow
