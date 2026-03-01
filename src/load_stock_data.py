@@ -1,38 +1,78 @@
 from sqlalchemy import create_engine, text
 from urllib.parse import quote_plus
 import pandas as pd
+import psycopg2
 
 import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def load_data(vars_postgres: dict, table_name: str, df: pd.DataFrame):
+def connect_to_db():
+    logging.info(f"Connecting to PostgreSQL database...\n")
+    try:
+        conn = psycopg2.connect(
+            host="postgres", # service name in docker-compose.yaml; set "localhost" for this pc instead docker
+            port=5432,       # set 5000 for this computer instead docker
+            dbname="db",
+            user="db_user",
+            password="db_password"
+        )
+        return conn
+    except psycopg2.Error as e:
+        print(f"Database connection failed: {e}")
+        raise
 
-    user = vars_postgres["USER"]
-    password = vars_postgres["PASSWORD"]
-    host = vars_postgres["HOST"]
-    port = vars_postgres["PORT"]
-    database = vars_postgres["DATABASE"]
-
-    engine = create_engine(f'postgresql://{user}:{quote_plus(password)}@{host}:{port}/{database}')
+def create_table(conn):
+    logging.info(f"Creating table if not exists...\n") 
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE SCHEMA IF NOT EXISTS dev;
+            CREATE TABLE IF NOT EXISTS dev.stock_data (
+                id SERIAL PRIMARY KEY,
+                current_price FLOAT,
+                timestamp TIMESTAMP
+            )
+        """)
+        conn.commit()
+        print("Table was created.")
+    except psycopg2.Error as e:
+        print(f"Error creating the table: {e}")
+        raise
     
-    df.to_sql(
-        name=table_name,
-        con=engine,
-        if_exists='append',
-        index=False
-    )
-
-    logging.info(f"Data loaded!\n") 
-    
-    df_check = pd.read_sql(f'SELECT * FROM {table_name}', con=engine)
-    logging.info(f"Total entries in table: {len(df_check)}\n")
+def load_data(df):
+    conn = connect_to_db()
+    create_table(conn)
+    logging.info(f"Inserting stock data into the database...\n")
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"""
+            INSERT INTO dev.stock_data (
+                current_price,
+                timestamp
+            ) VALUES ('{df.loc[0, "current_price"]}', '{df.loc[0, "timestamp"]}')
+        """)
+        conn.commit()
+        print("Data successfully inserted")
+    except psycopg2.Error as e:
+        print(f"Error inserting the data into the database: {e}")
+        raise
+    finally:
+        conn.close()
 
 if __name__=="__main__":
-    load_data({
-        "USER": "user",
-        "PASSWORD": "password",
-        "HOST": "host",
-        "PORT": "port",
-        "DATABASE": "database"
-    })
+    from utils import get_variables
+    from transform_stock_data import transform_data
+    vars = get_variables()
+    df = transform_data(vars)
+
+    load_data(df)
+    print("Database connection closed.")
+
+    # load_data({
+    #     "USER": "user",
+    #     "PASSWORD": "password",
+    #     "HOST": "host",
+    #     "PORT": "port",
+    #     "DATABASE": "database"
+    # })
 
