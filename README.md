@@ -9,6 +9,7 @@ An automated ETL pipeline that collects real-time stock quote data from the [Fin
 - **PostgreSQL 16** — data storage
 - **Apache Airflow 3.1.7** — orchestration and scheduling
 - **Docker / Docker Compose** — containerised environment
+- **Git & GitHub** — version control
 
 ---
 
@@ -161,7 +162,7 @@ Open an interactive `psql` session inside the running container:
 docker exec -it postgres_container psql -U db_user -d db
 ```
 
-When prompted, enter the password: `db_password`
+If prompted, enter the password: `db_password`
 
 ### Exploring the database
 
@@ -174,7 +175,7 @@ Once connected, use the following `psql` meta-commands to navigate:
 -- List all schemas in the current database
 \dn
 
--- List all tables (relations) inside the dev schema
+-- List all relations (tables, views, sequences) inside the dev schema
 \dt dev.*
 ```
 
