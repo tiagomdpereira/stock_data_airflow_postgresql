@@ -2,6 +2,14 @@
 
 An automated ETL pipeline that collects real-time stock quote data from the [Finnhub](https://finnhub.io/) API, transforms it, and loads it into a PostgreSQL database. The pipeline runs every 30 minutes, orchestrated and scheduled by Apache Airflow, and the entire stack runs inside Docker containers.
 
+## Tech Stack
+
+- **Python 3.12** — pipeline logic
+- **Pandas** — data transformation
+- **PostgreSQL 16** — data storage
+- **Apache Airflow 3.1.7** — orchestration and scheduling
+- **Docker / Docker Compose** — containerised environment
+
 ---
 
 ## Overview
@@ -194,16 +202,3 @@ The `docker-compose.yaml` defines two services connected via a shared Docker bri
   - `./data` → `/opt/airflow/data` — shared data directory (raw JSON, temp Parquet)
   - `./config` → `/opt/airflow/config` — provides access to the `.env` file
 - **Command**: runs `airflow db migrate` (applies schema migrations) followed by `airflow standalone` (starts the scheduler, triggerer, and web server as a single process)
-
----
-
-## Environment variables (.env)
-
-All runtime configuration must be defined in `config/.env`.
-
-```dotenv
-API_KEY=""          # Your Finnhub API key (https://finnhub.io/)
-SYMBOL="TSLA"       # Stock ticker symbol to track
-TIMEZONE="Europe/Lisbon"
-RAW_DATA_PATH="data/stock_data.json"
-```
